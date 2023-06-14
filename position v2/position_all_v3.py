@@ -84,7 +84,7 @@ def pars_selected_files(selected_file):
     keywords = {row[0].row: str(row[1].value) for row in sheet.iter_rows(
         min_row=3, max_row=sheet.max_row)}
 
-    for row in sheet.iter_rows(min_row=4, max_row=sheet.max_row):
+    for row in sheet.iter_rows(min_row=3, max_row=sheet.max_row):
         keyword = keywords[row[0].row]
         page = 1
         empty = "no empty"
@@ -116,11 +116,15 @@ def pars_selected_files(selected_file):
     wb.save(selected_file)
     print()
 
-
-selected_files = []
-selected_files += select_file()
-for files in selected_files:
-    pars_selected_files(files)
+start_stop = "start"
+while start_stop != "stop":
+    selected_files = []
+    selected_files += select_file()
+    for files in selected_files:
+        pars_selected_files(files)
+    start_stop = "stop" if input("Введите: 1 - выход; Enter - выбрать другой файл: ") == "1" else start_stop
+    print()
+    
 
 print("Made by https://t.me/ArChernushevich")
 input("Нажмите Enter, чтобы выйти...")
