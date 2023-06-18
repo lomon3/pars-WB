@@ -1,8 +1,4 @@
 
-# pip install pandas
-# pip install requests
-# pip install pyinstaller
-
 import requests
 import openpyxl
 from openpyxl.utils import get_column_letter
