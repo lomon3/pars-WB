@@ -84,31 +84,33 @@ def pars_selected_files(selected_file):
     keywords = {row[0].row: str(row[1].value) for row in sheet.iter_rows(
         min_row=3, max_row=sheet.max_row)}
 
-    for row in sheet.iter_rows(min_row=3, max_row=sheet.max_row):
-        keyword = keywords[row[0].row]
+    for index, row in enumerate(sheet.iter_rows(min_row=3, max_row=sheet.max_row), start=3):
+        keyword = keywords[index]
         page = 1
         empty = "no empty"
+        fbrand = '%3B'.join(str(brand) for brand in brand_list)
+
         while empty != "empty":
-            url = f"https://search.wb.ru/exactmatch/ru/common/v4/search?page={page}&appType=1&curr=rub&dest=-1257786&lang=ru&locale=ru&query={keyword}&resultset=catalog&fbrand={'%3B'.join(str(brand) for brand in brand_list)}"
+            url = f"https://search.wb.ru/exactmatch/ru/common/v4/search?page={page}&appType=1&curr=rub&dest=-1257786&lang=ru&locale=ru&query={keyword}&resultset=catalog&fbrand={fbrand}"
             try:
                 response = requests.get(url)
                 data = response.json()
+
                 if 'data' in data:
                     products = data["data"]["products"]
                     if products:
-                        for product in products:
-                            if product:
-                                for col in range(4, max_col + 1):
-                                    if str(product["id"]) == str(sheet.cell(row=2, column=col).value):
-                                        sheet.cell(row=row[0].row,
-                                                   column=col, value="V")
+                        for col in range(4, max_col + 1):
+                                index = next((index for index, prod in enumerate(products) if prod["id"] == sheet.cell(row=2, column=col).value), None)
+                                if index is not None:
+                                    sheet.cell(row=row[0].row, column=col, value=((page-1)*100)+index+1)
                     else:
                         empty = "empty"
                 else:
                     empty = "empty"
+
             except Exception as e:
-                print(
-                    f"Failed to get data for keyword = {keyword} page = {page}: {e}")
+                print(f"Failed to get data for keyword = {keyword} page = {page}: {e}")
+
             print(f"{keyword} - page #{page} {empty}")
             page += 1
 
