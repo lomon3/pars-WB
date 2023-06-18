@@ -67,13 +67,15 @@ def pars_selected_files(selected_file):
     sheet = wb['Общий отчет']
     max_col = sheet.max_column
 
-    art_list = []
+    art_list = set()
     for col in range(4, max_col + 1):
       art = str(sheet.cell(row=2, column=col).value)
-      art_list.append(art)
+      art_list.add(art)
+    art_list.discard('None')
 
     brand_list = get_brands(art_list)
     print(f"get brand_ids: {brand_list}")
+    fbrand = '%3B'.join(str(brand) for brand in brand_list)
 
     for row in sheet.iter_rows(min_row=3, min_col=4, max_row=sheet.max_row, max_col=max_col):
         for cell in row:
@@ -83,14 +85,15 @@ def pars_selected_files(selected_file):
     # Индексированный словарь для хранения значений столбца 2
     keywords = {row[0].row: str(row[1].value) for row in sheet.iter_rows(
         min_row=3, max_row=sheet.max_row)}
-
+    
     for index, row in enumerate(sheet.iter_rows(min_row=3, max_row=sheet.max_row), start=3):
+        # Создание словаря для хранения позиций артикулов на странице поиска
+        position_dict = {art: None for art in art_list}
         keyword = keywords[index]
         page = 1
         empty = "no empty"
-        fbrand = '%3B'.join(str(brand) for brand in brand_list)
 
-        while empty != "empty":
+        while empty != "empty" and page <= 15 and None in position_dict.values():
             url = f"https://search.wb.ru/exactmatch/ru/common/v4/search?page={page}&appType=1&curr=rub&dest=-1257786&lang=ru&locale=ru&query={keyword}&resultset=catalog&fbrand={fbrand}"
             try:
                 response = requests.get(url)
@@ -99,10 +102,11 @@ def pars_selected_files(selected_file):
                 if 'data' in data:
                     products = data["data"]["products"]
                     if products:
-                        for col in range(4, max_col + 1):
-                                index = next((index for index, prod in enumerate(products) if prod["id"] == sheet.cell(row=2, column=col).value), None)
+                        for art in position_dict:
+                            if position_dict[art] is None:
+                                index = next((index for index, prod in enumerate(products) if prod["id"] == int(art)), None)
                                 if index is not None:
-                                    sheet.cell(row=row[0].row, column=col, value=((page-1)*100)+index+1)
+                                    position_dict[art] = ((page-1)*100)+index+1
                     else:
                         empty = "empty"
                 else:
@@ -113,6 +117,11 @@ def pars_selected_files(selected_file):
 
             print(f"{keyword} - page #{page} {empty}")
             page += 1
+            
+        for col in range(4, max_col + 1):
+            if str(sheet.cell(row=2, column=col).value) in position_dict:
+                sheet.cell(row=row[0].row, column=col, value=position_dict[str(sheet.cell(row=2, column=col).value)])
+
 
     # Сохраняем excel-файл
     wb.save(selected_file)
