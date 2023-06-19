@@ -118,12 +118,13 @@ def pars_selected_files(selected_file):
             page += 1
 
             if page < 11:
-                print(f"{keyword} - page #{page} {empty}")
+                print(f"{keyword} - page #{page-1} {empty}")
             else:
-                while empty != "empty" and None in position_dict.values():
-                    url = f"https://search.wb.ru/exactmatch/ru/common/v4/search?page={page}&appType=1&curr=rub&dest=-1257786&lang=ru&locale=ru&query={keyword}&resultset=catalog&fbrand={fbrand}"
+                page = 1
+                while empty != "empty" and page <= 30 and None in position_dict.values():
+                    url2 = f"https://search.wb.ru/exactmatch/ru/common/v4/search?page={page}&appType=1&curr=rub&dest=-1257786&lang=ru&locale=ru&query={keyword}&resultset=catalog&fbrand={fbrand}"
                     try:
-                        response = requests.get(url)
+                        response = requests.get(url2)
                         data = response.json()
 
                         if 'data' in data:
@@ -133,7 +134,7 @@ def pars_selected_files(selected_file):
                                     if position_dict[art] is None:
                                         index = next((index for index, prod in enumerate(products) if prod["id"] == int(art)), None)
                                         if index is not None:
-                                            position_dict[art] = 1001
+                                            position_dict[art] = "1000+"
                             else:
                                 empty = "empty"
                         else:
@@ -141,6 +142,10 @@ def pars_selected_files(selected_file):
 
                     except Exception as e:
                         print(f"Failed to get data for keyword = {keyword} page = {page}: {e}")
+                    page += 1
+
+                print(f"{keyword} - Checked {page-1} pages with a filter by brand, page {page} is {empty}")
+                
 
             
         for col in range(4, max_col + 1):
