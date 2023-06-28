@@ -42,6 +42,8 @@ sheet.cell(row=1, column=8, value="Цена после СПП")
 sheet.cell(row=1, column=9, value="сток")
 sheet.cell(row=1, column=10, value="рейт")
 sheet.cell(row=1, column=11, value="отзывы")
+sheet.cell(row=1, column=12, value="subjectId")
+sheet.cell(row=1, column=13, value="subjectParentId")
 
 # группируем список
 chunk_size = 300
@@ -81,6 +83,8 @@ for chunk in article_chunks:
 
             rating = product["rating"]
             feedbacks = product["feedbacks"]
+            subjectId = product["subjectId"]
+            subjectParentId = product["subjectParentId"]
 
             extended = product.get("extended")
             if extended is not None:
@@ -111,10 +115,12 @@ for chunk in article_chunks:
             qty = ""
             rating = ""
             feedbacks = ""
+            subjectId = ""
+            subjectParentId = ""
 
         # Записываем результаты в excel-файл
         row_values = [sku, name, price_u, basic_sale, basic_price_u,
-                      client_sale, client_price_u, qty, rating, feedbacks]
+                      client_sale, client_price_u, qty, rating, feedbacks, subjectId, subjectParentId]
         for i, value in enumerate(row_values):
             sheet.cell(row=row, column=i+2, value=value)
 
