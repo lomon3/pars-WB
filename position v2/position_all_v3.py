@@ -93,7 +93,7 @@ def pars_selected_files(selected_file):
         page = 1
         empty = "no empty"
 
-        while empty != "empty" and None in position_dict.values():
+        while empty != "empty" and None in position_dict.values() and page != 20:
             url = f"https://search.wb.ru/exactmatch/ru/common/v4/search?page={page}&appType=1&curr=rub&dest=-1257786&lang=ru&locale=ru&query={keyword}&resultset=catalog&fbrand={fbrand}"
             try:
                 response = requests.get(url)
