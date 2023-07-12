@@ -96,8 +96,11 @@ for chunk in article_chunks:
                 else:
                     basic_price_u = price_u
 
-                client_sale = extended["clientSale"]
-                client_price_u = extended["clientPriceU"]/100
+                client_sale = extended.get("clientSale")
+
+                client_price_u = extended.get("client_price_u")
+                if client_price_u is not None:
+                    client_price_u = client_price_u / 100
             else:
                 basic_sale = ""
                 basic_price_u = ""
