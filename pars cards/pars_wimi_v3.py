@@ -9,8 +9,11 @@ import requests
 
 # Получаем значение spp
 def get_spp():
+    # Чтение client_cookie из файла config.txt
+    with open("config.txt", "r") as file:
+        client_cookie = file.read().strip()
     headers = {
-        'Cookie': "_wbauid=2725866931671562445; ___wbu=4d7fb948-d2d6-4346-bdaf-24c4aaf642a5.1671562445; BasketUID=fc9ac6dd-d0a3-4eb9-907b-826afdebee8f; WILDAUTHNEW_V3=B522E25B0D2D22627383FE6A5BC3835E2A07AC77CEFD60DAB8B50910DC553AAF7440B66261D6877F35A55A10BFBDCB36B0021A8F62672BFE1E7B7DCE459212D05968AD4B87934DD0F00FC876A86F15379F318C1A092F9227D57BF90912E8B4779F258FCCFAF2610B66FACB854A0CF498492F52D10E1A91A8AEFD99FB39B6546E3E37F31003BD5317445446D9F4255E12FA7DE9B4B7A73ADAA9C2904992E952AD494A2382A6324E8533CAAB3DDCCD80F3F6FD813D2BF20742AE5B85EB8C401D9E8BF39885493F5B82C1C65094F1EA924CA11B0589413D5F83079BA0EA98AE5546C80B61E159176C942B8669BB267AE50C0315F518094653817BC087C1D3E4625AAB3F49A42D80B3EFC848B311A9FA20AB39C9A09D76E3BDE52C441058AEFD01A4ABC2EB703953D7A5BC32FE2636DA2174580CF360; external-locale=ru; x-supplier-id-external=d99a1f06-4d18-5d70-8ee4-d0fefc8a193f; um=uid%3Dw7TDssOkw7PCu8KwwrPCs8KywrjCucKzwrPCuA%253d%253d%3Aproc%3D100%3Aehash%3Dd41d8cd98f00b204e9800998ecf8427e; __wba_s=1; wbx-validation-key=6efd7552-485b-4ba8-899d-fce2056c2352; ___wbs=ed012f2f-f441-40e5-bed5-729290e7bee0.1693806859",
+        'Cookie': client_cookie,
     }
 
     url = 'https://www.wildberries.ru/webapi/personalinfo/extrainfo'
@@ -22,6 +25,7 @@ def get_spp():
             return personal_discount
         else:
             print(f"Ошибка запроса: {response.status_code}. Повторная попытка...")
+
 
 spp = input("Введите СПП или оставьте пустым для автоматической загрузки СПП: ") or get_spp()
 print(f'Сегодня СПП = {spp}%')
@@ -114,6 +118,7 @@ for chunk in article_chunks:
                     client_price_u = client_price_u / 100
                 else:
                     client_price_u = basic_price_u
+
             else:
                 basic_sale = ""
                 basic_price_u = ""
