@@ -38,7 +38,7 @@ sheet = wb.create_sheet('pars')
 # Пройти по каждой строке на исходном листе
 for row in old_sheet.iter_rows(min_row=1, max_col=5, max_row=old_sheet.max_row):
     # Проверить значение ячейки в первом столбце
-    if row[0].value in ["WiMi", "BASEUS", "Бренд"]:
+    if row[0].value in ["WiMi", "BASEUS", "LEGO", "Бренд"]:
         # Создать новый объект строки и заполнить его значениями из соответствующих ячеек
         new_row = []
         for cell in row:
