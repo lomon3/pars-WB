@@ -41,6 +41,12 @@ async def get_brand_filter_and_total(keyword, fbrand=None):
                     # Пробуем декодировать содержимое как JSON, даже если тип содержимого не соответствует
                     text = await response.text()
                     data = json.loads(text)
+                
+                # Проверяем наличие ключа 'data' в ответе
+                if 'data' not in data:
+                    print(f"Ответ не содержит ожидаемых данных: {data}")
+                    return [], 0
+                
         except Exception as e:
             print(f"Failed to decode JSON for keyword= {keyword}: {e}")
             return [], 0
@@ -179,9 +185,23 @@ async def pars_selected_files(selected_file, max_pages_without_brand):
                 if str(sheet.cell(row=2, column=col).value) in position_dict:
                     sheet.cell(row=row[0].row, column=col, value=position_dict[str(sheet.cell(row=2, column=col).value)])
             print(f"Ключевое слово {keyword} обработано!")
+    success = False
+    while not success:
+        try:
+            wb.save(selected_file)
+            print(f"Файл {selected_file} обработан и сохранен!")
+            success = True
+        
+        except PermissionError as e:
+            print(f"Ошибка доступа к файлу {selected_file}. Пожалуйста, закройте файл и нажмите Enter для повторной попытки, или введите 'ggwp' для отмены. Ошибка: {e}")
+            response = input().strip().lower()
+            if response == 'ggwp':
+                print("Операция отменена пользователем.")
+                break
 
-    wb.save(selected_file)
-    print(f"Файл {selected_file} обработан и сохранен!")
+        except Exception as e:
+            print(f"Произошла неизвестная ошибка при обработке файла {selected_file}: {e}")
+            break
 
 
 
@@ -225,16 +245,18 @@ def select_file():
 async def main():
     start_stop = "start"
     while start_stop != "stop":
-        selected_files = []
-        selected_files += select_file()
-        max_pages_without_brand = int(input("Введите максимальное количество страниц без фильтра бренда (по умолчанию 40): ") or 40)
-        for file in selected_files:
-            await pars_selected_files(file, max_pages_without_brand)
-        start_stop = "stop" if input("Введите: 1 - выход; Enter - выбрать другой файл: ") == "1" else start_stop
+        try:
+            selected_files = []
+            selected_files += select_file()
+            max_pages_without_brand = int(input("Введите максимальное количество страниц без фильтра бренда (по умолчанию 40): ") or 40)
+            for file in selected_files:
+                await pars_selected_files(file, max_pages_without_brand)
+            start_stop = "stop" if input("Введите: 1 - выход; Enter - выбрать другой файл: ") == "1" else start_stop
+        except Exception as e:
+            print(f"Произошла ошибка: {e}")
+            input("Нажмите Enter, чтобы продолжить...")
         print()
     
     print("Made by https://t.me/ArChernushevich")
     input("Нажмите Enter, чтобы выйти...")
-
-# Запускаем асинхронную функцию
 asyncio.run(main())
