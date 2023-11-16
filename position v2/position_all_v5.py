@@ -55,13 +55,14 @@ async def get_brand_filter_and_total(keyword, fbrand=None):
     total_pages = (data["data"]["total"] + 99) // 100  # Округление вверх
     
     if fbrand:
-        print(f"С фильтром по бренду всего страниц {total_pages}, и там {data['data']['total']} товаров")
+        additional_info = ", но мы проверили только 30, " if total_pages > 30 else ""
+        print(f"С фильтром по бренду всего страниц {total_pages}, и там {data['data']['total']} товаров{additional_info}")
     else:
         print(f"Без фильтров всего страниц {total_pages}, и там {data['data']['total']} товаров")
 
     return [item["id"] for item in brand_items], total_pages
 
-async def fetch_data(session, url, retries=2, delay=2):
+async def fetch_data(session, url, retries=2, delay=4):
     for attempt in range(1, retries+1):
         try:
             async with session.get(url) as response:
@@ -128,8 +129,9 @@ async def get_positions_by_keyword(session, keyword, art_list, total_pages, fbra
             fbrand = '%3B'.join(str(brand) for brand in brand_list)
             _, total_pages = await get_brand_filter_and_total(keyword, fbrand=fbrand)  # Обновляем total_pages с фильтром бренда
         
+        max_limit_with_brand = 30
         page = 1
-        while None in position_dict.values() and page <= total_pages:
+        while None in position_dict.values() and page <= min(total_pages, max_limit_with_brand):
             #print(f"список брендов: {fbrand != None} и кол-во страниц {total_pages} и ограничитель {max_pages_without_brand}")
             url = f"https://search.wb.ru/exactmatch/ru/common/v4/search?page={page}&appType=1&curr=rub&dest=-1257786&lang=ru&locale=ru&query={keyword}&resultset=catalog&fbrand={fbrand}"
             data = await fetch_data(session, url)
