@@ -73,7 +73,7 @@ for row in range(2, sheet.max_row + 1):
 
 row = 2
 for chunk in article_chunks:
-    url = f"https://card.wb.ru/cards/detail?spp={spp}&reg=1&locale=ru&dest=-1216601,-115136,-421732,123585595&nm={';'.join(chunk)}"
+    url = f"https://card.wb.ru/cards/v1/detail?appType=0&curr=rub&dest=-1257484&spp={spp}&nm={';'.join(chunk)}"
     # print(url)
 
     # Отправляем запрос и получаем ответ в формате JSON
