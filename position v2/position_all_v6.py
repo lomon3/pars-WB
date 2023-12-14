@@ -146,16 +146,9 @@ async def get_positions_by_keyword(session, keyword, art_list, total_pages, fbra
                 products = data["data"]["products"]
                 for art in position_dict:
                     if position_dict[art] is None:
-                        for index, prod in enumerate(products):
-                            if prod["id"] == int(art):
-                                if 'log' in prod and prod['log']:
-                                    log_data = prod['log']
-                                    if 'position' in log_data and 'promoPosition' in log_data:
-                                        position_dict[art] = f"{log_data['position']} -> {log_data['promoPosition']}"
-                                else:
-                                    position_dict[art] = ((page-1)*100)+index+1
-                                break
-        
+                        index = next((index for index, prod in enumerate(products) if prod["id"] == int(art)), None)
+                        if index is not None:
+                            position_dict[art] = f"{max_pages_without_brand}00+"
             page += 1
 
     return position_dict, total_pages
